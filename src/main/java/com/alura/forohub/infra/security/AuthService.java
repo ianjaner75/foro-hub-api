@@ -22,7 +22,7 @@ public class AuthService implements UserDetailsService {
         Usuario u = repo.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("No existe usuario con email " + email));
 
-        // devolvemos un UserDetails que usa la contraseña tal cual está en BD (con {bcrypt}…)
+        // devolvemos un UserDetails que usa la contraseña tal cual está en BD
         return User.withUsername(u.getEmail())
                 .password(u.getContrasena())
                 .authorities("ROLE_USER")

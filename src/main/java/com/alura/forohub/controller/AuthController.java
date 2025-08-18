@@ -29,7 +29,7 @@ public class AuthController {
         );
 
         // El principal aquí es un org.springframework.security.core.userdetails.User
-        String email = auth.getName(); // = username (tu email)
+        String email = auth.getName(); // = username
         String jwt = tokenService.generarTokenEmail(email);
 
         return ResponseEntity.ok(new DatosJWTToken(jwt));

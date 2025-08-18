@@ -36,9 +36,9 @@ public class SecurityFilter extends OncePerRequestFilter {
             try {
                 String email = tokenService.getSubject(jwt);
 
-                // Verifica que el usuario exista (opcional, pero recomendable)
+
                 usuarioRepository.findByEmail(email).ifPresent(u -> {
-                    // Principal = email (String). Autoridades “hardcodeadas”.
+
                     var auth = new UsernamePasswordAuthenticationToken(
                             email,
                             null,
@@ -48,7 +48,7 @@ public class SecurityFilter extends OncePerRequestFilter {
                 });
 
             } catch (Exception ignored) {
-                // token inválido/expirado → sin autenticación (Security devolverá 401 si aplica)
+                // token inválido/expirado (Security devolverá 401 si aplica)
             }
         }
 

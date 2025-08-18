@@ -31,7 +31,7 @@ public class TokenService {
                 .sign(alg);
     }
 
-    // Si quieres conservarlo para otros usos, puedes dejar este:
+
     public String generarToken(com.alura.forohub.domain.usuario.Usuario usuario) {
         return generarTokenEmail(usuario.getEmail());
     }

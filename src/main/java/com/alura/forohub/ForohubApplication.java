@@ -12,4 +12,3 @@ public class ForohubApplication {
 	}
 	private String msg;
 }
-//jolo

@@ -10,7 +10,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -37,11 +36,17 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/login").permitAll()
+                        // swagger / openapi públicos
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
+                        // (opcional) registro público
+                        .requestMatchers(HttpMethod.POST, "/usuarios").permitAll()
                         .anyRequest().authenticated()
                 )
-                // MUY IMPORTANTE: deshabilitar los mecanismos por defecto
+                // deshabilitar mecanismos por defecto (solo JWT)
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())
+
+                // filtro JWT antes del auth filter por usuario/clave
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
@@ -51,7 +56,11 @@ public class SecurityConfig {
         return cfg.getAuthenticationManager();
     }
 
-    // SecurityConfig.java
+    /**
+     * PasswordEncoder que:
+     * - Soporta prefijos {bcrypt} y {noop}
+     * - Si no hay prefijo en BD, asume BCrypt por defecto
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         String idForEncode = "bcrypt";
@@ -60,9 +69,8 @@ public class SecurityConfig {
         encoders.put("noop", NoOpPasswordEncoder.getInstance());
 
         DelegatingPasswordEncoder dpe = new DelegatingPasswordEncoder(idForEncode, encoders);
-        // <- Clave: si la contraseña en BD NO tiene prefijo, se asumirá BCrypt
+        // si la contraseña en BD NO tiene prefijo, se asumirá BCrypt
         dpe.setDefaultPasswordEncoderForMatches(new BCryptPasswordEncoder());
         return dpe;
     }
-
 }
